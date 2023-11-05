@@ -1,6 +1,6 @@
 #ifndef DEVELOPER_H
 #define DEVELOPER_H
-#include"myellipseitem.h"
+#include"Node.h"
 #include <QMainWindow>
 #include <QGraphicsScene>
 #include <QGraphicsEllipseItem>
@@ -13,7 +13,7 @@ class Developer : public QMainWindow
     Q_OBJECT
 public:
     explicit Developer(QWidget *parent = nullptr);
-    void handleNodeSelected(StoryNode* selectedNode);
+    void handleNodeSelected(Node* selectedNode);
     void resizeEvent(QResizeEvent *event);
 private slots:
     //创建节点
@@ -31,8 +31,8 @@ private:
     QPlainTextEdit* nodeTextEdit;  // 声明 QPlainTextEdit 对象，用于编辑选中节点的文本
     QPushButton *saveButton;  // 声明 QPushButton 对象，用于保存选中节点的文本
     QGraphicsScene *scene;
-    QHash<QString,StoryNode*> nodes;
-    StoryNode* selectedNode;
+    QHash<QString,Node*> nodes;
+    Node* selectedNode;
 signals:
 
 };

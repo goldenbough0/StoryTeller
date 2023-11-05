@@ -1,5 +1,5 @@
 #include "developer.h"
-#include "myellipseitem.h"
+#include "StoryNode.h"
 #include <QGraphicsView>
 #include <QGraphicsEllipseItem>
 #include <QVBoxLayout>
@@ -69,7 +69,7 @@ Developer::Developer(QWidget *parent) : QMainWindow(parent),scene(new QGraphicsS
 
 void Developer::createNode()  // 创建节点的槽函数
 {
-    StoryNode *node = new StoryNode(0,0,50,50);  // 创建 StoryNode 对象，用于表示故事节点
+    Node *node = new Node(0,0,50,50);  // 创建 StoryNode 对象，用于表示故事节点
     node->setPos(QPointF(qrand()%300,qrand()%300));  // 设置节点位置
     scene->addItem(node);  // 将节点添加到场景中
     NodeNum=NodeNum+1;  // 节点数量加一
@@ -82,7 +82,7 @@ void Developer::addChildNode()  // 添加子节点的槽函数
 {
     if(selectedNode)  // 如果已经选择了一个父节点
     {
-        StoryNode *childNode = new StoryNode(0,0,50,50);  // 创建子节点对象
+        Node *childNode = new Node(0,0,50,50);  // 创建子节点对象
         qreal ySpace = selectedNode->childNodes.size()*60;  // 计算子节点与父节点在 y 方向上的间距
         childNode->setPos(selectedNode->pos()+QPointF(150,ySpace));  // 设置子节点的位置
         childNode->parentNode = selectedNode;  // 设置添加的子节点的父节点为当前选中节点
@@ -137,7 +137,7 @@ void Developer::deleteNode()
                 selectedNode->parentNode->connectParentLines.removeOne(line);  // 为避免悬空指针等导致程序异常结束，需移除当前节点的所有连接线
                 delete line;  // 删除该线的内存
             }
-            for (StoryNode* childNode:selectedNode->childNodes)  // 遍历当前节点的子节点
+            for (Node* childNode:selectedNode->childNodes)  // 遍历当前节点的子节点
             {
                 childNode->parentNode = nullptr;  // 设置子节点的父节点为空
             }
@@ -153,7 +153,7 @@ void Developer::deleteNode()
                      scene->removeItem(line);
                      delete line;
                 }
-           for (StoryNode* childNode:selectedNode->childNodes)
+           for (Node* childNode:selectedNode->childNodes)
            {
                childNode->parentNode = nullptr;
            }
@@ -171,50 +171,13 @@ void Developer::deleteNode()
         QMessageBox::information(this, "warning", "请先选择一个节点");  // 未选择节点，弹出提示信息
     }
 }
-//void Developer::deleteNode()  // 删除节点的槽函数
-//{
-//    if(selectedNode)  // 如果已经选择了一个节点
-//    {
 
-
-//        if(selectedNode->childNodes.empty()){
-//            if (selectedNode->parentNode) {  // 如果选定节点有父节点
-//                selectedNode->parentNode->childNodes.removeOne(selectedNode);  // 将选定节点从其父节点的子节点链表中移除
-
-//                for (QGraphicsLineItem *line : selectedNode->connectParentLines) {  // 遍历选定节点连接父节点的线链表
-//                    scene->removeItem(line);  // 从场景中删除该线
-//                    delete line;  // 删除该线的内存
-//                }
-
-//                for (QGraphicsLineItem *line : selectedNode->connectChildLines) {  // 遍历选定节点连接子节点的线链表
-//                    scene->removeItem(line);  // 从场景中删除该线
-//                    delete line;  // 删除该线的内存
-//                }
-//            }
-
-//            scene->removeItem(selectedNode);  // 从场景中删除选定节点
-//            delete selectedNode;  // 删除选定节点的内存
-
-//            QString nodeIndex = nodes.key(selectedNode);  // 获取选定节点在 nodes 容器中的索引
-//            nodes.remove(nodeIndex);  // 从 nodes 容器中删除选定节点
-
-//            selectedNode = nullptr;  // 将 selectedNode 变量重置为空指针
-//        }
-//        else{
-//            QMessageBox::information(this,"warning","请选择没有子节点的节点");  // 弹出警告对话框
-//        }
-//    }
-//    else  // 如果没有选择节点
-//    {
-//        QMessageBox::information(this,"warning","请先选择一个节点");  // 弹出警告对话框
-//    }
-//}
 
 void Developer::handleSelectionChanged()
 {
     QList<QGraphicsItem*> items = scene->selectedItems();
     if (items.size() == 1) {
-        StoryNode *node = static_cast<StoryNode*>(items.first());
+        Node *node = static_cast<Node*>(items.first());
         selectedNode = node;
         QString text = node->text;
         nodeTextEdit->setPlainText(text);// 将选中节点的文本内容设置到 QPlainLineEdit 中
@@ -236,7 +199,7 @@ void Developer::saveNodeText()
     }
 }
 
-void Developer::handleNodeSelected(StoryNode(* selectedNode))  // 处理选中节点
+void Developer::handleNodeSelected(Node(* selectedNode))  // 处理选中节点
 {
     this->selectedNode = selectedNode;  // 将选定节点设置为成员变量 selectedNode
 }
