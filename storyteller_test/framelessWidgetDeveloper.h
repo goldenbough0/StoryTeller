@@ -34,10 +34,12 @@ public:
     void resizeEvent(QResizeEvent *event);
 
 private slots:
-    // 创建节点
-    void createNode();
-    // 增加子节点
+    // 创建剧情节点
+    void createStoryNode();
+    // 增加子剧情节点
     void addChildNode();
+    //增加选项节点
+    void addAttributeNode();
     // 删除节点
     void deleteNode();
     // 读取选中节点

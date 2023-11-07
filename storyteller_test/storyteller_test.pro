@@ -14,6 +14,7 @@ INCLUDEPATH +=$$PWD/libs/Include
 
 
 SOURCES += \
+    attributenode.cpp \
     framelessWidget.cpp \
     framelessWidgetDeveloper.cpp \
     framelessWidgetPlayer.cpp \
@@ -22,6 +23,7 @@ SOURCES += \
     start.cpp
 
 HEADERS += \
+    attributenode.h \
     framelessWidget.h \
     framelessWidgetDeveloper.h \
     framelessWidgetPlayer.h \

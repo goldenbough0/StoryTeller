@@ -54,7 +54,7 @@ private:
         if(event->y()<60)
             controlWindowScale();
     };
-    void resizeEvent(QResizeEvent *event);
+    //void resizeEvent(QResizeEvent *event);
 
     QRect lastGeometry;
     void controlWindowScale();

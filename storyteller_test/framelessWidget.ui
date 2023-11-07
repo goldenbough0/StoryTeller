@@ -29,7 +29,9 @@
    <string>开始界面</string>
   </property>
   <property name="styleSheet">
-   <string notr="true"/>
+   <string notr="true">#framelessWidget{
+border-image:url(:/photos/rey-seven-_nm_mZ4Cs2I-unsplash.jpg)
+}</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
    <item row="0" column="0">

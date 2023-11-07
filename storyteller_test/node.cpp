@@ -24,8 +24,15 @@ QVariant node::itemChange(GraphicsItemChange change, const QVariant &value)
         }
         else
         {
-            // 设置填充颜色为白色
-            setBrush(QColor(Qt::white));
+            if(type==1){
+                // 设置填充颜色为白色
+                setBrush(QColor(Qt::white));
+            }
+            else{
+                //设置填充颜色为黑色
+                setBrush(QColor(Qt::black));
+            }
+
         }
     }
     return QGraphicsItem::itemChange(change, value);
@@ -71,4 +78,15 @@ void node::setText(const QString& text)
 {
     // 在这里实现将节点文本设置为传入的文本内容的逻辑
     this->text=text;
+}
+
+//设置节点类型
+void node::setType(int t){
+    type=t;
+    if(type==1){
+        setBrush(QColor(Qt::white));
+    }
+    else{
+        setBrush(QColor(Qt::black));
+    }
 }

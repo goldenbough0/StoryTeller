@@ -53,10 +53,10 @@ framelessWidgetDeveloper::framelessWidgetDeveloper(QWidget *parent)
     connect(scene,&QGraphicsScene::selectionChanged,this,&framelessWidgetDeveloper::handleSelectionChanged);  // 连接 graphics scene 的 selectionChanged 信号和 handleSelectionChanged 槽
 
     //连接按钮与函数
-    connect(ui->new_story,&QPushButton::clicked,this,&framelessWidgetDeveloper::createNode);  // 连接新建节点按钮的 clicked 信号和 createNode 槽
+    connect(ui->new_story,&QPushButton::clicked,this,&framelessWidgetDeveloper::createStoryNode);  // 连接新建节点按钮的 clicked 信号和 createNode 槽
     connect(ui->new_childstory,&QPushButton::clicked,this,&framelessWidgetDeveloper::addChildNode);  // 连接增加子节点按钮的 clicked 信号和 addChildNode 槽
     connect(ui->new_delete,&QPushButton::clicked,this,&framelessWidgetDeveloper::deleteNode);  // 连接删除节点按钮的 clicked 信号和 deleteNode 槽
-
+    connect(ui->new_choice,&QPushButton::clicked,this,&framelessWidgetDeveloper::addAttributeNode);
     //设置文本内容编辑功能
 
     connect(ui->save_text_button, &QPushButton::clicked, this, &framelessWidgetDeveloper::saveNodeText);
@@ -182,29 +182,63 @@ void framelessWidgetDeveloper::controlWindowScale(){
 #endif
 }
 
-void framelessWidgetDeveloper::createNode()  // 创建节点的槽函数
+// 创建剧情节点的槽函数
+void framelessWidgetDeveloper::createStoryNode()
 {
-    qDebug() << "Scene is valid: " << (scene != nullptr);
-    node *n = new node(0,0,50,50);  // 创建 StoryNode 对象，用于表示故事节点
-    // 生成随机坐标
+    //初始化节点
+    node *n = new node(0,0,50,50);
+    //设置节点类型为剧情节点
+    n->setType(1);
+    // 设置随机坐标
     int x = QRandomGenerator::global()->bounded(scene->width());
     int y = QRandomGenerator::global()->bounded(scene->height());
-
-    // 设置节点位置为随机坐标
     n->setPos(QPointF(x, y));
-    qDebug() << "node_n is valid: " << (n != nullptr);
+    //qDebug() << "node_n is valid: " << (n != nullptr);
     scene->addItem(n);  // 将节点添加到场景中
     ui->graphicsView->update();
     NodeNum=NodeNum+1;  // 节点数量加一
     QString nodeIndex = "Node" + QString::number(NodeNum);  // 生成节点索引
     nodes.insert(nodeIndex,n);  // 将节点添加到 nodes 容器中
+
 }
 
-void framelessWidgetDeveloper::addChildNode()  // 添加子节点的槽函数
+// 添加子剧情节点的槽函数
+void framelessWidgetDeveloper::addChildNode()
 {
     if(selectedNode)  // 如果已经选择了一个父节点
     {
         node *childNode = new node(0,0,50,50);  // 创建子节点对象
+        childNode->setType(1);//设置子节点为剧情节点。
+        qreal ySpace = selectedNode->childNodes.size()*60;  // 计算子节点与父节点在 y 方向上的间距
+        childNode->setPos(selectedNode->pos()+QPointF(150,ySpace));  // 设置子节点的位置
+        scene->addItem(childNode);  // 将子节点添加到场景中
+        NodeNum=NodeNum+1;
+        QString childNodeIndex = "ChildNode" + QString::number(NodeNum);  // 生成子节点索引
+        selectedNode->childNodes.append(childNode);  // 将子节点添加到选定节点的子节点链表中
+        nodes.insert(childNodeIndex,childNode);  // 将子节点添加到 nodes 容器中
+
+        QGraphicsLineItem *line = new QGraphicsLineItem(selectedNode->pos().x()+selectedNode->rect().width()/2,
+                                                        selectedNode->pos().y()+selectedNode->rect().height()/2,
+                                                        childNode->pos().x()+childNode->rect().width()/2,
+                                                        childNode->pos().y()+childNode->rect().height()/2);  // 创建连接父节点和子节点的线
+        scene->addItem(line);  // 将线添加到场景中
+        selectedNode->connectChildLines.append(line);  // 将该线添加到选定节点的连接子节点的线链表中
+        childNode->connectParentLines.append(line);  // 将该线添加到子节点的连接父节点的线链表中
+        childNode->parentNode = selectedNode;  // 设置子节点的父节点为选定节点
+    }
+    else  // 如果没有选择父节点
+    {
+        QMessageBox::information(this,"warning","请先选择一个节点作为父节点");  // 弹出警告对话框
+    }
+}
+
+// 添加选项节点的槽函数
+void framelessWidgetDeveloper::addAttributeNode()
+{
+    if(selectedNode)  // 如果已经选择了一个父节点
+    {
+        node *childNode = new node(0,0,50,50);  // 创建子节点对象
+        childNode->setType(2);//设置节点类型为选项
         qreal ySpace = selectedNode->childNodes.size()*60;  // 计算子节点与父节点在 y 方向上的间距
         childNode->setPos(selectedNode->pos()+QPointF(150,ySpace));  // 设置子节点的位置
         scene->addItem(childNode);  // 将子节点添加到场景中
@@ -271,8 +305,10 @@ void framelessWidgetDeveloper::handleSelectionChanged()
     if (items.size() == 1) {
         node *n = static_cast<node*>(items.first());
         selectedNode = n;
+        // 将选中节点的文本内容设置到 QTextEdit 中
         QString text = n->text;
-        ui->node_text_Edit->setText(text);// 将选中节点的文本内容设置到 QTextEdit 中
+        ui->node_text_Edit->setText(text);
+
 
 
 

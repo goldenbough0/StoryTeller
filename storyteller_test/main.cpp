@@ -1,7 +1,4 @@
-#include "start.h"
 #include "framelessWidget.h"
-#include "framelessWidgetPlayer.h"
-#include "framelessWidgetDeveloper.h"
 #include <QApplication>
 
 int main(int argc, char *argv[])

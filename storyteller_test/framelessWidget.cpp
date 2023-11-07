@@ -180,28 +180,28 @@ void framelessWidget::mouseMoveEvent(QMouseEvent *event)
 }
 
 // 窗口变化事件
-void framelessWidget::resizeEvent(QResizeEvent *event)
-{
-    //Resize border
-    if(border)
-        border->resize(ui->mainWidget->size() + QSize(2, 2));
+//void framelessWidget::resizeEvent(QResizeEvent *event)
+//{
+//    //Resize border
+//    if(border)
+//        border->resize(ui->mainWidget->size() + QSize(2, 2));
 
-    //Resize mask
-    QPainterPath path;
-#ifdef Q_OS_WINDOWS
-    path.addRoundedRect(ui->mainWidget->rect(), cornerRadius - 1, cornerRadius - 1);
-#else
-    path.addRect(ui->mainWidget->rect());
-#endif
-    QRegion mask(path.toFillPolygon().toPolygon());
-    ui->mainWidget->setMask(mask);
+//    //Resize mask
+//    QPainterPath path;
+//#ifdef Q_OS_WINDOWS
+//    path.addRoundedRect(ui->mainWidget->rect(), cornerRadius - 1, cornerRadius - 1);
+//#else
+//    path.addRect(ui->mainWidget->rect());
+//#endif
+//    QRegion mask(path.toFillPolygon().toPolygon());
+//    ui->mainWidget->setMask(mask);
 
-    //Resize all pages
-//    for(int i = 0; i < pageList.size(); i++){
-//        pageList[i]->resize(ui->mainWidget->width() * 0.4 < pageList[i]->preferWidth ? pageList[i]->preferWidth - 1 : ui->mainWidget->width() * 0.4 - 1, ui->mainWidget->height());
-//        pageList[i]->resize(pageList[i]->width() + 1, pageList[i]->height());
-//    }
-}
+//    //Resize all pages
+////    for(int i = 0; i < pageList.size(); i++){
+////        pageList[i]->resize(ui->mainWidget->width() * 0.4 < pageList[i]->preferWidth ? pageList[i]->preferWidth - 1 : ui->mainWidget->width() * 0.4 - 1, ui->mainWidget->height());
+////        pageList[i]->resize(pageList[i]->width() + 1, pageList[i]->height());
+////    }
+//}
 
 //点击最大化按钮事件
 void framelessWidget::controlWindowScale(){
