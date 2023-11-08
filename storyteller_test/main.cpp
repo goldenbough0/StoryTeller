@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
 //    s.show();
 
     w.setWindowFlag(Qt::FramelessWindowHint);
-    //w.setAttribute(Qt::WA_TranslucentBackground);
+    w.setAttribute(Qt::WA_TranslucentBackground);
     w.show();
 //    p.setWindowFlag(Qt::FramelessWindowHint);
 //    p.setAttribute(Qt::WA_TranslucentBackground);

@@ -1,6 +1,7 @@
 #include "attributenode.h"
 
-attributeNode::attributeNode()
+attributeNode::attributeNode(QString n,int v)
 {
-
+    name=n;
+    value=v;
 }

@@ -90,3 +90,8 @@ void node::setType(int t){
         setBrush(QColor(Qt::black));
     }
 }
+
+//删除属性
+void node::deleteNodeAttributes(QString name){
+    nodeAttributes.remove(name);
+}

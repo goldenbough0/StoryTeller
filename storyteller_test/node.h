@@ -39,7 +39,9 @@ public:
     void setType(int t);
 
     //属性
-
+    QHash<QString,int> nodeAttributes;
+    //删除属性
+    void deleteNodeAttributes(QString name);
 
 
 protected:

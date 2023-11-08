@@ -5,6 +5,7 @@
 #include<QDebug>
 
 int NodeNum=0;  // 定义一个全局变量 NodeNum，用于记录节点数量
+bool ifRoot=false;
 
 framelessWidgetDeveloper::framelessWidgetDeveloper(QWidget *parent)
     : QWidget(parent)
@@ -28,6 +29,23 @@ framelessWidgetDeveloper::framelessWidgetDeveloper(QWidget *parent)
 
     ui->new_delete->setForegroundColor(QColor("#5ac2c6"));
     ui->new_delete->setOverlayColor(QColor("##5ac2c6"));
+
+    ui->save_node_text_button->setForegroundColor(QColor("#5ac2c6"));
+    ui->save_node_text_button->setOverlayColor(QColor("#5ac2c6"));
+
+    ui->add_node_attribute_button->setForegroundColor(QColor("#5ac2c6"));
+    ui->add_node_attribute_button->setOverlayColor(QColor("#5ac2c6"));
+
+    ui->delete_node_attribute_button->setForegroundColor(QColor("#5ac2c6"));
+    ui->delete_node_attribute_button->setOverlayColor(QColor("#5ac2c6"));
+
+    ui->add_attribute_btn->setForegroundColor(QColor("#5ac2c6"));
+    ui->add_attribute_btn->setOverlayColor(QColor("##5ac2c6"));
+
+    ui->delete_attribute_btn->setForegroundColor(QColor("#5ac2c6"));
+    ui->delete_attribute_btn->setOverlayColor(QColor("#5ac2c6"));
+
+
 
 
 
@@ -56,11 +74,17 @@ framelessWidgetDeveloper::framelessWidgetDeveloper(QWidget *parent)
     connect(ui->new_story,&QPushButton::clicked,this,&framelessWidgetDeveloper::createStoryNode);  // 连接新建节点按钮的 clicked 信号和 createNode 槽
     connect(ui->new_childstory,&QPushButton::clicked,this,&framelessWidgetDeveloper::addChildNode);  // 连接增加子节点按钮的 clicked 信号和 addChildNode 槽
     connect(ui->new_delete,&QPushButton::clicked,this,&framelessWidgetDeveloper::deleteNode);  // 连接删除节点按钮的 clicked 信号和 deleteNode 槽
-    connect(ui->new_choice,&QPushButton::clicked,this,&framelessWidgetDeveloper::addAttributeNode);
-    //设置文本内容编辑功能
-
-    connect(ui->save_text_button, &QPushButton::clicked, this, &framelessWidgetDeveloper::saveNodeText);
-
+    connect(ui->new_choice,&QPushButton::clicked,this,&framelessWidgetDeveloper::addChoiceNode);
+    //设置节点文本内容编辑功能
+    connect(ui->save_node_text_button, &QPushButton::clicked, this, &framelessWidgetDeveloper::saveNodeText);
+    //设置节点属性编辑功能
+    connect(ui->add_node_attribute_button,&QPushButton::clicked, this,&framelessWidgetDeveloper::addNodeAttribute);
+    connect(ui->delete_node_attribute_button,&QPushButton::clicked, this,&framelessWidgetDeveloper::deleteNodeAttribute);
+    connect(ui->node_attribute_list, &QListWidget::itemClicked, this,&framelessWidgetDeveloper::selectNodeAttribute);
+    //设置全局属性编辑功能
+    connect(ui->add_attribute_btn,&QPushButton::clicked, this,&framelessWidgetDeveloper::addAttribute);
+    connect(ui->delete_attribute_btn,&QPushButton::clicked, this,&framelessWidgetDeveloper::deleteAttribute);
+    connect(ui->attribute_list, &QListWidget::itemClicked, this,&framelessWidgetDeveloper::selectAttribute);
 }
 
 framelessWidgetDeveloper::~framelessWidgetDeveloper()
@@ -182,23 +206,29 @@ void framelessWidgetDeveloper::controlWindowScale(){
 #endif
 }
 
-// 创建剧情节点的槽函数
+// 创建剧情根节点的槽函数
 void framelessWidgetDeveloper::createStoryNode()
 {
-    //初始化节点
-    node *n = new node(0,0,50,50);
-    //设置节点类型为剧情节点
-    n->setType(1);
-    // 设置随机坐标
-    int x = QRandomGenerator::global()->bounded(scene->width());
-    int y = QRandomGenerator::global()->bounded(scene->height());
-    n->setPos(QPointF(x, y));
-    //qDebug() << "node_n is valid: " << (n != nullptr);
-    scene->addItem(n);  // 将节点添加到场景中
-    ui->graphicsView->update();
-    NodeNum=NodeNum+1;  // 节点数量加一
-    QString nodeIndex = "Node" + QString::number(NodeNum);  // 生成节点索引
-    nodes.insert(nodeIndex,n);  // 将节点添加到 nodes 容器中
+    if(ifRoot==false){
+        //初始化节点
+        node *n = new node(0,0,50,50);
+        //设置节点类型为剧情节点
+        n->setType(1);
+        // 设置随机坐标
+        int x = QRandomGenerator::global()->bounded(scene->width());
+        int y = QRandomGenerator::global()->bounded(scene->height());
+        n->setPos(QPointF(x, y));
+        //qDebug() << "node_n is valid: " << (n != nullptr);
+        scene->addItem(n);  // 将节点添加到场景中
+        ui->graphicsView->update();
+        NodeNum=NodeNum+1;  // 节点数量加一
+        QString nodeIndex = "Node" + QString::number(NodeNum);  // 生成节点索引
+        nodes.insert(nodeIndex,n);  // 将节点添加到 nodes 容器中
+        ifRoot=true;
+    }
+    else{
+        QMessageBox::information(this,"warning","已有根节点");  // 弹出警告对话框
+    }
 
 }
 
@@ -233,7 +263,7 @@ void framelessWidgetDeveloper::addChildNode()
 }
 
 // 添加选项节点的槽函数
-void framelessWidgetDeveloper::addAttributeNode()
+void framelessWidgetDeveloper::addChoiceNode()
 {
     if(selectedNode)  // 如果已经选择了一个父节点
     {
@@ -308,13 +338,32 @@ void framelessWidgetDeveloper::handleSelectionChanged()
         // 将选中节点的文本内容设置到 QTextEdit 中
         QString text = n->text;
         ui->node_text_Edit->setText(text);
+        //将选中节点的属性内容设置到QListWidget中
+        ui->node_attribute_list->clear();//清除列表中原有内容
+        //遍历选中节点的所有属性内容
+        QHash<QString,int>::iterator i;
+        for( i=selectedNode->nodeAttributes.begin(); i!=selectedNode->nodeAttributes.end(); ++i){
+            QString name = i.key();
+            //int value =i.value();
 
+            // 检查属性是否已经存在//略多余，或可删去
+            bool attributeExists = attributes.contains(name);
+
+            // 如果属性不存在于全局属性中
+            if (!attributeExists) {
+                selectedNode->nodeAttributes.remove(name);
+            }
+            else{
+                ui->node_attribute_list->addItem(name);
+            }
+        }
 
 
 
     } else {
         selectedNode = nullptr;
         ui->node_text_Edit->clear();
+        ui->node_attribute_list->clear();
     }
 }
 
@@ -324,6 +373,145 @@ void framelessWidgetDeveloper::saveNodeText()
         selectedNode->setText(ui->node_text_Edit->toPlainText());
         // 更新选中节点的文本标签显示
     }
+    else{
+        QMessageBox::information(this,"warning","请先选择一个节点");
+    }
+
+}
+
+//属性相关函数
+//增加全局属性
+void framelessWidgetDeveloper::addAttribute(){
+
+    // 获取用户输入的属性名称和属性数值
+    QString name = ui->attribute_name_edit->text();
+    int value = ui->attribute_value_edit->value();
+
+    // 检查属性是否已经存在
+    bool attributeExists = attributes.contains(name);
+    // 如果属性不存在，则将属性名称和属性数值插入到全局属性链表中
+    if (!attributeExists) {
+
+        attributes[name]=value;
+
+        // 在表格中添加一行，并显示属性名称
+        ui->attribute_list->addItem(name);
+    }
+    else{
+        //如果属性存在,保存当前属性数值
+        attributes[name]=value;
+    }
+}
+
+// 当用户选择列表框中的某个属性时触发该函数
+void framelessWidgetDeveloper::selectAttribute()
+{
+    // 获取选中的属性名称
+    QString name = ui->attribute_list->currentItem()->text();
+
+    // 在文本框中显示属性名称和属性数值
+    ui->attribute_name_edit->setText(name);
+    ui->attribute_value_edit->setValue(attributes[name]);
+    // 将删除按钮设置为可用状态
+    ui->delete_attribute_btn->setEnabled(true);
+}
+
+// 当用户点击删除按钮时触发该函数，删除选中属性
+void framelessWidgetDeveloper::deleteAttribute()
+{
+    // 获取选中的属性名称
+    QString name = ui->attribute_name_edit->text();
+
+    // 从map中删除该属性
+    attributes.remove(name);
+
+    // 从列表框中移除该属性
+    QList<QListWidgetItem *> items = ui->attribute_list->findItems(name, Qt::MatchExactly);
+    if (!items.isEmpty()) {
+        delete items.first();
+    }
+    // 将删除按钮设置为不可用状态
+    ui->delete_attribute_btn->setEnabled(false);
+
+    // 清空文本框
+    ui->attribute_name_edit->clear();
+    ui->attribute_value_edit->clear();
+
+    //删除所有含该属性的节点的该属性
+    QHash<QString,node*>::iterator i;
+    for( i=nodes.begin(); i!=nodes.end(); ++i){
+        if(i.value()->nodeAttributes.contains(name)){
+            i.value()->nodeAttributes.remove(name);
+        }
+    }
+
+
+}
+
+
+//节点属性
+//增加属性
+void framelessWidgetDeveloper::addNodeAttribute(){
+    if(selectedNode){
+        // 获取用户输入的属性名称和属性数值
+        QString name = ui->node_attribute_name_Edit->text();
+        int value = ui->node_attribute_value_Edit->value();
+
+        // 检查属性是否已经存在
+        bool attributeExists = attributes.contains(name);
+        bool nodeAttributeExists=selectedNode->nodeAttributes.contains(name);
+        // 如果属性不存在于全局属性中
+        if (!attributeExists) {
+            QMessageBox::information(this,"warning","请输入一个存在的属性");
+        }
+        else{
+            //如果属性存在于全局属性中
+            if(!nodeAttributeExists){
+                //如果属性不存在于选中节点属性中
+                selectedNode->nodeAttributes[name]=value;
+                // 在表格中添加一行，并显示属性名称和属性数值
+                ui->node_attribute_list->addItem(name);
+            }
+            else{
+                //如果属性存在于选中节点属性中
+                selectedNode->nodeAttributes[name]=value;
+            }
+        }
+    }
+    else{
+        QMessageBox::information(this,"warning","请先选择一个节点");
+    }
+}
+//删除属性
+void framelessWidgetDeveloper::deleteNodeAttribute(){
+    // 获取选中的属性名称
+    QString name = ui->node_attribute_name_Edit->text();
+
+    // 从节点属性表中删除该属性
+    selectedNode->nodeAttributes.remove(name);
+
+    // 从列表框中移除该属性
+    QList<QListWidgetItem *> items = ui->node_attribute_list->findItems(name, Qt::MatchExactly);
+    if (!items.isEmpty()) {
+        delete items.first();
+    }
+    // 将删除按钮设置为不可用状态
+    ui->delete_node_attribute_button->setEnabled(false);
+
+    // 清空文本框
+    ui->node_attribute_name_Edit->clear();
+    ui->node_attribute_value_Edit->clear();
+}
+//选中属性
+void framelessWidgetDeveloper::selectNodeAttribute(){
+    // 获取选中的属性名称
+    QString name = ui->node_attribute_list->currentItem()->text();
+
+    // 在文本框中显示属性名称和属性数值
+    ui->node_attribute_name_Edit->setText(name);
+    ui->node_attribute_value_Edit->setValue(selectedNode->nodeAttributes[name]);
+    // 将删除按钮设置为可用状态
+    ui->delete_node_attribute_button->setEnabled(true);
 }
 
 void framelessWidgetDeveloper::handleNodeSelected(node(* selectedNode))  // 处理选中节点
@@ -332,12 +520,12 @@ void framelessWidgetDeveloper::handleNodeSelected(node(* selectedNode))  // 处�
 }
 
 
-void framelessWidgetDeveloper::resizeEvent(QResizeEvent *event)
-{
-    QSize mainWindowSize = size();
-    int width = mainWindowSize.width(); // 获取主窗口当前宽度
-    int height = mainWindowSize.height(); // 获取主窗口当前高度
-    // 进行窗口大小变化后的相关操作
-    ui->node_text_Edit->setFixedHeight(height/4);
-}
+//void framelessWidgetDeveloper::resizeEvent(QResizeEvent *event)
+//{
+//    QSize mainWindowSize = size();
+//    //int width = mainWindowSize.width(); // 获取主窗口当前宽度
+//    int height = mainWindowSize.height(); // 获取主窗口当前高度
+//    // 进行窗口大小变化后的相关操作
+//    ui->node_text_Edit->setFixedHeight(height/4);
+//}
 

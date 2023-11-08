@@ -9,7 +9,6 @@
 #include <qpainter.h>
 #include <QPainterPath>
 #include "node.h"
-#include <QMainWindow>
 #include <QGraphicsScene>
 #include <QGraphicsEllipseItem>
 #include <QHash>
@@ -18,7 +17,8 @@
 #include <QPushButton>
 #include <QStackedWidget>
 #include<qgraphicsitem.h>
-
+#include<QList>
+#include"attributenode.h"
 QT_BEGIN_NAMESPACE
 namespace Ui { class framelessWidgetDeveloper; }
 QT_END_NAMESPACE
@@ -31,7 +31,7 @@ public:
     explicit framelessWidgetDeveloper(QWidget *parent = nullptr);
     ~framelessWidgetDeveloper();
     void handleNodeSelected(node* selectedNode);
-    void resizeEvent(QResizeEvent *event);
+    //void resizeEvent(QResizeEvent *event);
 
 private slots:
     // 创建剧情节点
@@ -39,13 +39,29 @@ private slots:
     // 增加子剧情节点
     void addChildNode();
     //增加选项节点
-    void addAttributeNode();
+    void addChoiceNode();
     // 删除节点
     void deleteNode();
     // 读取选中节点
     void handleSelectionChanged();
     // 保存文本
     void saveNodeText();
+
+    //全局属性编辑函数
+    //增加属性
+    void addAttribute();
+    //删除属性
+    void deleteAttribute();
+    //选中属性
+    void selectAttribute();
+
+    //节点属性编辑函数
+    //增加属性
+    void addNodeAttribute();
+    //删除属性
+    void deleteNodeAttribute();
+    //选中属性
+    void selectNodeAttribute();
 
 private:
     Ui::framelessWidgetDeveloper *ui;
@@ -83,11 +99,15 @@ private:
     QRect lastGeometry;
     void controlWindowScale();
 
-    // QLabel *nodeText;
-    //QTextEdit* nodeTextEdit;  // 声明 QPlainTextEdit 对象，用于编辑选中节点的文本
-    // QPushButton *saveButton;  // 声明 QPushButton 对象，用于保存选中节点的文本
+    //节点显示界面
     QGraphicsScene *scene;
+    //节点哈希表
     QHash<QString,node*> nodes;
+    //选中节点
     node* selectedNode;
+
+    //属性
+    QHash<QString,int> attributes;
+
 };
 #endif // _FRAMELESSWIDGETDEVELOPER_H
