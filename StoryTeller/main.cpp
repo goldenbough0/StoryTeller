@@ -1,14 +1,22 @@
-#include "widget.h"
-#include "developer.h"
+#include "framelessWidget.h"
 #include <QApplication>
-#include <QPushButton>
-#include <QObject>
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    Widget w;
+    framelessWidget w;
+//    framelessWidgetDeveloper s;
+//    framelessWidgetPlayer p;
+//    s.setWindowFlag(Qt::FramelessWindowHint);
+//    s.setAttribute(Qt::WA_TranslucentBackground);
+//    s.show();
 
+    w.setWindowFlag(Qt::FramelessWindowHint);
+    w.setAttribute(Qt::WA_TranslucentBackground);
     w.show();
+//    p.setWindowFlag(Qt::FramelessWindowHint);
+//    p.setAttribute(Qt::WA_TranslucentBackground);
+//    p.show();
+
     return a.exec();
 }
