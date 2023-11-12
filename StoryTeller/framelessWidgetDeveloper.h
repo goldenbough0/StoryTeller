@@ -18,7 +18,6 @@
 #include <QStackedWidget>
 #include<qgraphicsitem.h>
 #include<QList>
-#include"attributenode.h"
 QT_BEGIN_NAMESPACE
 namespace Ui { class framelessWidgetDeveloper; }
 QT_END_NAMESPACE
