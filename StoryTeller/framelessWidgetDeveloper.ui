@@ -231,7 +231,7 @@ background-color: rgb(251, 251, 251);
 border-image:url(:/photos/lex-melony-R5WSLOYauCg-unsplash.jpg);
 }</string>
               </property>
-              <layout class="QGridLayout" name="gridLayout_3">
+              <layout class="QGridLayout" name="gridLayout_3" columnstretch="1,10,1,5,1">
                <item row="0" column="1" rowspan="2">
                 <layout class="QVBoxLayout" name="verticalLayout_4">
                  <item>
